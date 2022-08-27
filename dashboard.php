@@ -1,3 +1,13 @@
+<?php
+session_start();
+
+if(!isset($_SESSION["loggedin"])){
+    header("location: login.php");
+    exit;
+}
+
+?>
+
 <!DOCTYPE html>
 
 <head>
@@ -11,7 +21,11 @@
     <div class="container mt-5">
         <div class="row">
             <div class="col">
-                <h2>Welcome, user!</h2>
+                <h2>Welcome, 
+                <?php
+                    echo $_SESSION["username"];
+                ?>
+                !</h2>
             </div>
         </div>
     </div>
