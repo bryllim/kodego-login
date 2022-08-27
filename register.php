@@ -3,24 +3,35 @@
 //Include config file
 require_once 'config.php';
 
-$username = $password = $confirm_password = "";
-
 if($_SERVER["REQUEST_METHOD"] == "POST"){
 
     if(!empty($_POST["username"]) && !empty($_POST["password"])){
 
         if($_POST["password"] == $_POST["confirmpassword"]){
 
-            $sql = "SELECT id FROM users WHERE username ?";
+            $sql = "INSERT INTO users (username, password) VALUES (?,?)";
 
-            mysqli_prepare($link, $sql);
-
+            if($stmt = mysqli_prepare($link, $sql)){
+                $param_username = $_POST["username"];
+                $param_password = password_hash($_POST["password"], PASSWORD_DEFAULT);
+                mysqli_stmt_bind_param($stmt, "ss", $param_username, $param_password);
+                
+                if(mysqli_stmt_execute($stmt)){
+                    header("location: login.php");
+                }else{
+                    $errorMessage = "Username already exists!";
+                }
+                mysqli_stmt_close($stmt);
+            }
+            
         }else{
             $errorMessage = "Passwords do not match!";
         }
     }else{
         $errorMessage = "Username or password must not be empty!";
     }
+
+    mysqli_close($link);
 }
 
 ?>
@@ -54,7 +65,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                         <label for="password" class="form-label">Confirm Password</label>
                         <input type="password" class="form-control" name="confirmpassword" id="password" required>
                     </div>
-                        <?php
+                    <?php
                             if(isset($errorMessage)){
                                 echo '<div class="alert alert-danger" role="alert">';
                                 echo $errorMessage;
