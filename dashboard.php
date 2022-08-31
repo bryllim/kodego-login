@@ -6,6 +6,30 @@ if(!isset($_SESSION["loggedin"])){
     exit;
 }
 
+//Include config file
+require_once 'config.php';
+
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+    if(!empty($_POST["task"])){
+
+        $sql = "INSERT INTO tasks (name, status, user_id) VALUES (?,?,?)";
+
+        if($stmt = mysqli_prepare($link, $sql)){
+            $status = "Pending";
+            mysqli_stmt_bind_param($stmt, "ssi", $_POST["task"], $status, $_SESSION["id"]);
+            if(mysqli_stmt_execute($stmt)){
+                $successMessage = "Task successfully added!";
+            }else{
+                $errorMessage = "Error querying into the database!";
+            }
+            mysqli_stmt_close($stmt);
+        }
+
+    }else{
+        $errorMessage = "Task cannot be empty!";
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -34,6 +58,19 @@ if(!isset($_SESSION["loggedin"])){
             </div>
         </div>
         <hr>
+        <?php
+            if(isset($errorMessage)){
+                echo '<div class="alert alert-danger" role="alert">';
+                echo $errorMessage;
+                echo '</div>';
+            }
+
+            if(isset($successMessage)){
+                echo '<div class="alert alert-success" role="alert">';
+                echo $successMessage;
+                echo '</div>';
+            }
+        ?>
         <div class="row">
             <div class="col-3">
                 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">Create New
@@ -51,24 +88,36 @@ if(!isset($_SESSION["loggedin"])){
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Make coffee</td>
-                            <td>
-                                <span class="badge bg-light text-dark">Pending</span>
-                            </td>
-                            <td>
-                                <a class="actionicon" href="#">✅</a> &nbsp; <a class="actionicon" href="#">❌</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Cook eggs</td>
-                            <td>
-                                <span class="badge bg-success">Completed</span>
-                            </td>
-                            <td>
-                                <a class="actionicon" href="#">✅</a> &nbsp; <a class="actionicon" href="#">❌</a>
-                            </td>
-                        </tr>
+                        <?php
+                            $sql = "SELECT id, name, status FROM tasks WHERE user_id = ? ORDER BY id DESC";
+                            if($stmt = mysqli_prepare($link, $sql)){
+                                mysqli_stmt_bind_param($stmt, "i", $_SESSION["id"]);
+                                if(mysqli_stmt_execute($stmt)){
+                                    mysqli_stmt_store_result($stmt);
+                                    if(mysqli_stmt_num_rows($stmt) > 0){
+                                        mysqli_stmt_bind_result($stmt, $id, $name, $status);
+                                        while(mysqli_stmt_fetch($stmt)){
+                                            echo '
+                                                <tr>
+                                                    <td>'.$name.'</td>
+                                                    <td>
+                                                        <span class="badge '.(($status=="Pending")?'bg-light text-dark':'bg-success').'">'.$status.'</span>
+                                                    </td>
+                                                    <td>
+                                                        <a class="actionicon" href="#">✅</a> &nbsp; <a class="actionicon" href="#">❌</a>
+                                                    </td>
+                                                </tr>
+                                            ';
+                                        }
+                                    }else{
+                                        echo "<tr><td><h3>There are currently no tasks.</h3></td></tr>";
+                                    }
+                                    
+                                }else{
+                                    $errorMessage = "Something went wrong.";
+                                }
+                            }
+                        ?>
                     </tbody>
                 </table>
             </div>
@@ -83,7 +132,7 @@ if(!isset($_SESSION["loggedin"])){
                     <h5 class="modal-title" id="exampleModalLabel">Create a New Task</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="createtask.php" method="POST">
+                <form action="dashboard.php" method="POST">
                     <div class="modal-body">
                         <input type="text" class="form-control" name="task" required>
                     </div>
