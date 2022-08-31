@@ -29,8 +29,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 
                 if(mysqli_stmt_fetch($stmt)){
                     if(password_verify($_POST["password"], $password)){
-        
-                        session_start();
 
                         $_SESSION["loggedin"] = true;
                         $_SESSION["id"] = $id;
