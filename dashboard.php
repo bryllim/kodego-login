@@ -112,7 +112,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                                 <button type="submit" class="actionicon">✅</a>
                                             </form>';
                                             }
-                                            echo '<form method="POST" action="deletetask.php">
+                                            echo '<form method="POST" action="deletetask.php" onsubmit="return confirm(\'Do you really want to delete?\');">
                                                                 <input type="hidden" name="task_id" value="'.$id.'" />
                                                                 <button type="submit" class="actionicon">❌</a>
                                                             </form></div>
