@@ -104,15 +104,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                                     <td>
                                                         <span class="badge '.(($status=="Pending")?'bg-light text-dark':'bg-success').'">'.$status.'</span>
                                                     </td>
-                                                    <td>
-                                                        <a class="actionicon" href="#">✅</a> &nbsp;
-                                                        <form method="POST" action="deletetask.php">
-                                                            <input type="hidden" name="task_id" value="'.$id.'" />
-                                                            <button type="submit" class="actionicon">❌</a>
-                                                        </form>
-                                                    </td>
-                                                </tr>
-                                            ';
+                                                    <td>';
+                                            
+                                            if($status == 'Pending'){
+                                                echo '<div><form method="POST" action="updatetask.php">
+                                                <input type="hidden" name="task_id" value="'.$id.'" />
+                                                <button type="submit" class="actionicon">✅</a>
+                                            </form>';
+                                            }
+                                            echo '<form method="POST" action="deletetask.php">
+                                                                <input type="hidden" name="task_id" value="'.$id.'" />
+                                                                <button type="submit" class="actionicon">❌</a>
+                                                            </form></div>
+                                                        </td>
+                                                    </tr>';
                                         }
                                     }else{
                                         echo "<tr><td><h3>There are currently no tasks.</h3></td></tr>";
