@@ -18,7 +18,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $status = "Pending";
             mysqli_stmt_bind_param($stmt, "ssi", $_POST["task"], $status, $_SESSION["id"]);
             if(mysqli_stmt_execute($stmt)){
-                $successMessage = "Task successfully added!";
+                $_SESSION["successMessage"] = "Task successfully added!";
             }else{
                 $errorMessage = "Error querying into the database!";
             }
@@ -65,10 +65,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 echo '</div>';
             }
 
-            if(isset($successMessage)){
+            if(isset($_SESSION["successMessage"])){
                 echo '<div class="alert alert-success" role="alert">';
-                echo $successMessage;
+                echo $_SESSION["successMessage"];
                 echo '</div>';
+                unset($_SESSION["successMessage"]);
             }
         ?>
         <div class="row">
@@ -104,7 +105,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                                                         <span class="badge '.(($status=="Pending")?'bg-light text-dark':'bg-success').'">'.$status.'</span>
                                                     </td>
                                                     <td>
-                                                        <a class="actionicon" href="#">✅</a> &nbsp; <a class="actionicon" href="#">❌</a>
+                                                        <a class="actionicon" href="#">✅</a> &nbsp;
+                                                        <form method="POST" action="deletetask.php">
+                                                            <input type="hidden" name="task_id" value="'.$id.'" />
+                                                            <button type="submit" class="actionicon">❌</a>
+                                                        </form>
                                                     </td>
                                                 </tr>
                                             ';
